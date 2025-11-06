@@ -9,19 +9,32 @@ const Post = () => {
   const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
+    let mounted = true;
     api.get(`/api/forum/${id}`).then((response) => {
-      setPost(response.data);
+      if (mounted) {
+        setPost(response);
+      }
+    }).catch((err) => {
+      console.error('Error fetching post:', err);
     });
     api.get(`/api/forum/${id}/comments`).then((response) => {
-      setComments(response.data);
+      if (mounted) {
+        setComments(response);
+      }
+    }).catch((err) => {
+      console.error('Error fetching comments:', err);
     });
+    return () => { mounted = false; };
   }, [id]);
 
   const handleCommentSubmit = (e) => {
     e.preventDefault();
+    if (!newComment.trim()) return;
     api.post(`/api/forum/${id}/comments`, { body: newComment }).then((response) => {
-      setComments([response.data, ...comments]);
+      setComments([response, ...comments]);
       setNewComment('');
+    }).catch((err) => {
+      console.error('Error posting comment:', err);
     });
   };
 
