@@ -15,6 +15,12 @@ const multer = require('multer');
 
 const upload = multer({ dest: 'uploads/' });
 
+// Input sanitization helper
+function sanitizeInput(input) {
+  if (typeof input !== 'string') return input;
+  return input.trim();
+}
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:3000';
@@ -76,14 +82,23 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password } = req.body || {};
     if (!name || !email || !password) return res.status(400).json({ message: 'Missing fields' });
-    const exists = await User.findOne({ email });
+    
+    const sanitizedEmail = sanitizeInput(email).toLowerCase();
+    const sanitizedName = sanitizeInput(name);
+    
+    if (!sanitizedEmail || !sanitizedName || !password) {
+      return res.status(400).json({ message: 'Invalid input' });
+    }
+    
+    const exists = await User.findOne({ email: sanitizedEmail });
     if (exists) return res.status(409).json({ message: 'User already exists' });
     const passwordHash = await bcrypt.hash(password, 10);
     const sid = `sid_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-    const user = await User.create({ name, email, passwordHash, sid });
+    const user = await User.create({ name: sanitizedName, email: sanitizedEmail, passwordHash, sid });
     res.cookie('sid', sid, { httpOnly: true, sameSite: 'lax' });
     res.json({ id: user._id, name: user.name, email: user.email });
   } catch (e) {
+    console.error('Register error:', e);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -92,7 +107,13 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body || {};
     if (!email || !password) return res.status(400).json({ message: 'Missing fields' });
-    const user = await User.findOne({ email });
+    
+    const sanitizedEmail = sanitizeInput(email).toLowerCase();
+    if (!sanitizedEmail || !password) {
+      return res.status(400).json({ message: 'Invalid input' });
+    }
+    
+    const user = await User.findOne({ email: sanitizedEmail });
     if (!user) return res.status(401).json({ message: 'Invalid credentials' });
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
@@ -139,7 +160,20 @@ app.post('/api/notices', requireAuth, async (req, res) => {
   try {
     const { title, date, description } = req.body || {};
     if (!title || !description) return res.status(400).json({ message: 'Missing fields' });
-    const doc = await Notice.create({ title, date: date || new Date().toDateString(), description, authorId: req.user._id });
+    
+    const sanitizedTitle = sanitizeInput(title);
+    const sanitizedDescription = sanitizeInput(description);
+    
+    if (!sanitizedTitle || !sanitizedDescription) {
+      return res.status(400).json({ message: 'Invalid input' });
+    }
+    
+    const doc = await Notice.create({ 
+      title: sanitizedTitle, 
+      date: date || new Date().toDateString(), 
+      description: sanitizedDescription, 
+      authorId: req.user._id 
+    });
     res.status(201).json({ id: doc._id, title: doc.title, date: doc.date, description: doc.description });
   } catch (e) {
     console.error('Error creating notice:', e);
@@ -162,7 +196,15 @@ app.post('/api/resources', requireAuth, async (req, res) => {
   try {
     const { title, url } = req.body || {};
     if (!title || !url) return res.status(400).json({ message: 'Missing fields' });
-    const doc = await Resource.create({ title, url, authorId: req.user._id });
+    
+    const sanitizedTitle = sanitizeInput(title);
+    const sanitizedUrl = sanitizeInput(url);
+    
+    if (!sanitizedTitle || !sanitizedUrl) {
+      return res.status(400).json({ message: 'Invalid input' });
+    }
+    
+    const doc = await Resource.create({ title: sanitizedTitle, url: sanitizedUrl, authorId: req.user._id });
     res.status(201).json({ id: doc._id, title: doc.title, url: doc.url });
   } catch (e) {
     console.error('Error creating resource:', e);
@@ -185,7 +227,20 @@ app.post('/api/forum', requireAuth, async (req, res) => {
   try {
     const { title, body } = req.body || {};
     if (!title || !body) return res.status(400).json({ message: 'Missing fields' });
-    const doc = await Post.create({ title, body, authorId: req.user._id, authorName: req.user.name });
+    
+    const sanitizedTitle = sanitizeInput(title);
+    const sanitizedBody = sanitizeInput(body);
+    
+    if (!sanitizedTitle || !sanitizedBody) {
+      return res.status(400).json({ message: 'Invalid input' });
+    }
+    
+    const doc = await Post.create({ 
+      title: sanitizedTitle, 
+      body: sanitizedBody, 
+      authorId: req.user._id, 
+      authorName: req.user.name 
+    });
     res.status(201).json({ id: doc._id, title: doc.title, body: doc.body, author: doc.authorName, createdAt: doc.createdAt });
   } catch (e) {
     console.error('Error creating forum post:', e);
@@ -234,7 +289,18 @@ app.post('/api/forum/:id/comments', requireAuth, async (req, res) => {
     }
     const { body } = req.body || {};
     if (!body) return res.status(400).json({ message: 'Missing fields' });
-    const doc = await Comment.create({ postId: id, body, authorId: req.user._id, authorName: req.user.name });
+    
+    const sanitizedBody = sanitizeInput(body);
+    if (!sanitizedBody) {
+      return res.status(400).json({ message: 'Invalid input' });
+    }
+    
+    const doc = await Comment.create({ 
+      postId: id, 
+      body: sanitizedBody, 
+      authorId: req.user._id, 
+      authorName: req.user.name 
+    });
     res.status(201).json({ id: doc._id, body: doc.body, author: doc.authorName, createdAt: doc.createdAt });
   } catch (e) {
     console.error('Error creating comment:', e);
@@ -260,7 +326,16 @@ app.post('/api/contact', async (req, res) => {
   try {
     const { name, email, message } = req.body || {};
     if (!name || !email || !message) return res.status(400).json({ message: 'Missing fields' });
-    await Contact.create({ name, email, message });
+    
+    const sanitizedName = sanitizeInput(name);
+    const sanitizedEmail = sanitizeInput(email).toLowerCase();
+    const sanitizedMessage = sanitizeInput(message);
+    
+    if (!sanitizedName || !sanitizedEmail || !sanitizedMessage) {
+      return res.status(400).json({ message: 'Invalid input' });
+    }
+    
+    await Contact.create({ name: sanitizedName, email: sanitizedEmail, message: sanitizedMessage });
     res.status(201).json({ message: 'Message received!' });
   } catch (e) {
     console.error('Error saving contact message:', e);

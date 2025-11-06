@@ -7,7 +7,7 @@ const Search = ({ onSearch }) => {
       <input
         type="text"
         placeholder="Search for resources..."
-        onChange={e => onSearch(e.target.value)}
+        onChange={e => onSearch?.(e.target.value || '')}
       />
     </div>
   );
