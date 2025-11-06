@@ -1,0 +1,47 @@
+.notices-container {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f7faff;
+  min-height: 100vh;
+}
+
+.notices-container h2 {
+  color: #004d99;
+  margin-bottom: 30px;
+}
+
+.notices-actions {
+  margin-bottom: 16px;
+}
+
+.notices-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.notice-card {
+  background-color: white;
+  width: 300px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  transition: transform 0.2s;
+}
+
+.notice-card:hover {
+  transform: translateY(-5px);
+}
+
+.notice-card h3 {
+  color: #004d99;
+  margin-bottom: 10px;
+}
+
+.notice-card .date {
+  color: #777;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}

@@ -1,0 +1,29 @@
+.resources-container {
+  padding: 40px 24px;
+}
+
+.resources-grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.resource-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+
+.resource-card a {
+  color: #004d99;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.resource-card a:hover {
+  text-decoration: underline;
+}
+
