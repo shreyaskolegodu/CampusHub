@@ -9,16 +9,22 @@ const Post = () => {
   const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
+    let mounted = true;
     api.get(`/api/forum/${id}`).then((response) => {
-      setPost(response);
+      if (mounted) {
+        setPost(response);
+      }
     }).catch((err) => {
       console.error('Error fetching post:', err);
     });
     api.get(`/api/forum/${id}/comments`).then((response) => {
-      setComments(response);
+      if (mounted) {
+        setComments(response);
+      }
     }).catch((err) => {
       console.error('Error fetching comments:', err);
     });
+    return () => { mounted = false; };
   }, [id]);
 
   const handleCommentSubmit = (e) => {

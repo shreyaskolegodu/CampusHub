@@ -15,17 +15,23 @@ function Forum() {
   const [body, setBody] = useState('');
 
   useEffect(() => {
+    let mounted = true;
     api.get('/api/forum')
       .then((data) => {
-        setPosts(data);
-        setLoading(false);
+        if (mounted) {
+          setPosts(data);
+          setLoading(false);
+        }
       })
       .catch((error) => {
         console.error('Error fetching forum posts:', error);
-        setError('Failed to load forum posts');
-        setLoading(false);
-        setPosts([]);
+        if (mounted) {
+          setError('Failed to load forum posts');
+          setLoading(false);
+          setPosts([]);
+        }
       });
+    return () => { mounted = false; };
   }, []);
 
   if (loading) {
