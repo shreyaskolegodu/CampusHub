@@ -13,18 +13,16 @@ function Register() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    (async () => {
-      try {
-        const data = await api.post('/api/auth/register', { name, email, password });
-        login(data);
-        addToast({ type: 'success', message: 'Account created successfully' });
-        navigate('/');
-      } catch (err) {
-        addToast({ type: 'error', message: err?.message || 'Registration failed' });
-      }
-    })();
+    try {
+      const data = await api.post('/api/auth/register', { name, email, password });
+      login(data);
+      addToast({ type: 'success', message: 'Account created successfully' });
+      navigate('/');
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || 'Registration failed' });
+    }
   };
 
   return (

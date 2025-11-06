@@ -20,7 +20,7 @@ function Resources() {
   }, []);
 
   const filteredResources = resources.filter(resource =>
-    resource.title.toLowerCase().includes(searchTerm.toLowerCase())
+    resource?.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

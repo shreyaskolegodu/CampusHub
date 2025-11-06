@@ -67,6 +67,10 @@ function Notices() {
             <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
               <button onClick={()=>setOpen(false)} style={{ background:'#e5e7eb', border:'none', padding:'8px 12px', borderRadius:8, cursor:'pointer' }}>Cancel</button>
               <button onClick={async()=>{
+                if (!title.trim() || !description.trim()) {
+                  addToast({ type:'error', message:'Title and description are required' });
+                  return;
+                }
                 try {
                   const created = await api.post('/api/notices', { title, description });
                   setNotices((prev)=>[{ id: created.id, title: created.title, date: created.date, description: created.description }, ...prev]);

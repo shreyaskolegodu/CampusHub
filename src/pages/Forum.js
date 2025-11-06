@@ -55,6 +55,10 @@ function Forum() {
           <input type="text" placeholder="Title" value={title} onChange={(e)=>setTitle(e.target.value)} />
           <textarea rows={4} placeholder="What's on your mind?" value={body} onChange={(e)=>setBody(e.target.value)} />
           <button onClick={async()=>{
+            if (!title.trim() || !body.trim()) {
+              addToast({ type:'error', message:'Title and body are required' });
+              return;
+            }
             try {
               const created = await api.post('/api/forum', { title, body });
               setPosts((prev)=>[{...created}, ...prev]);
