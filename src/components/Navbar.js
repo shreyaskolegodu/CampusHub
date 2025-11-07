@@ -45,7 +45,8 @@ function Navbar() {
               {user?.name || user?.email}
             </button>
             {profileOpen && (
-              <div style={{ position:'absolute', right:0, top:'100%', background:'#fff', color:'#111', borderRadius:8, boxShadow:'0 8px 20px rgba(0,0,0,0.2)', padding:8, minWidth:160 }}>
+              <div style={{ position:'absolute', right:0, top:'100%', background:'linear-gradient(180deg,#ffffff, #f7fbff)', color:'#111', borderRadius:8, boxShadow:'0 8px 20px rgba(0,0,0,0.18)', padding:8, minWidth:180 }}>
+                <NavLink to="/profile" onClick={()=>setProfileOpen(false)} style={{ display:'block', padding:'8px 10px', color:'#063b6b', textDecoration:'none' }}>Profile</NavLink>
                 <button onClick={()=>{ logout(); addToast({ type:'success', message:'Logged out' }); }} style={{ width:'100%', background:'transparent', border:'none', textAlign:'left', padding:'8px 10px', cursor:'pointer' }}>Logout</button>
               </div>
             )}

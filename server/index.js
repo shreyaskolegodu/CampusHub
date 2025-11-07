@@ -26,16 +26,26 @@ const PORT = process.env.PORT || 4000;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:3000';
 const allowedOrigins = new Set([
   CLIENT_ORIGIN,
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
 ]);
 
+// CORS configuration: allow the configured CLIENT_ORIGIN and common localhost dev origins,
+// and also accept any localhost/127.0.0.1 origin (useful when the dev server runs on different ports).
 const corsOptions = {
   credentials: true,
   origin(origin, callback) {
-    // Allow same-origin/non-browser (no Origin header)
+    // Allow non-browser requests with no Origin header (curl, server-to-server)
     if (!origin) return callback(null, true);
     if (allowedOrigins.has(origin)) return callback(null, true);
+    try {
+      const u = new URL(origin);
+      if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') return callback(null, true);
+    } catch (e) {
+      // If origin isn't a valid URL, reject
+    }
     return callback(new Error('Not allowed by CORS'));
   },
 };
@@ -250,6 +260,37 @@ app.post('/api/forum', requireAuth, async (req, res) => {
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ ok: true }));
+
+// Profile endpoints
+app.get('/api/me', requireAuth, async (req, res) => {
+  try {
+    const u = await User.findById(req.user._id).lean();
+    if (!u) return res.status(404).json({ message: 'User not found' });
+    const { _id, name, email, bio, semester, srn, avatarUrl, createdAt, updatedAt } = u;
+    res.json({ id: _id, name, email, bio, semester, srn, avatarUrl, createdAt, updatedAt });
+  } catch (e) {
+    console.error('Error fetching profile:', e);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.post('/api/me', requireAuth, async (req, res) => {
+  try {
+    const { name, bio, semester, srn, avatarUrl } = req.body || {};
+    const updates = {};
+    if (typeof name === 'string') updates.name = sanitizeInput(name);
+    if (typeof bio === 'string') updates.bio = sanitizeInput(bio);
+    if (typeof semester === 'string') updates.semester = sanitizeInput(semester);
+    if (typeof srn === 'string') updates.srn = sanitizeInput(srn);
+    if (typeof avatarUrl === 'string') updates.avatarUrl = sanitizeInput(avatarUrl);
+    const u = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).lean();
+    const { _id, name: n, email, bio: b, semester: s, srn: r, avatarUrl: a, createdAt, updatedAt } = u;
+    res.json({ id: _id, name: n, email, bio: b, semester: s, srn: r, avatarUrl: a, createdAt, updatedAt });
+  } catch (e) {
+    console.error('Error updating profile:', e);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 app.get('/api/forum/:id', async (req, res) => {
   try {
