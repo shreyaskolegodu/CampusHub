@@ -53,7 +53,7 @@ function Notices() {
       <h2>📢 Campus Notices</h2>
       {isAuthed && (
         <div className="notices-actions">
-          <button onClick={() => setOpen(true)} style={{ background:'#004d99', color:'#fff', border:'none', padding:'8px 12px', borderRadius:8, cursor:'pointer' }}>+ Add Notice</button>
+          <button onClick={() => setOpen(true)} className="btn btn-primary" style={{ padding: '8px 12px', borderRadius: 8 }}>+ Add Notice</button>
         </div>
       )}
       {open && (

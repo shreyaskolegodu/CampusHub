@@ -1,46 +1,23 @@
-.contact-container {
-  padding: 40px 24px;
-  display: flex;
-  justify-content: center;
-}
+
+.contact-container { padding: 40px 24px; display: flex; justify-content: center; }
 
 .contact-card {
   width: 100%;
   max-width: 560px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: var(--card);
+  border: 1px solid var(--card-border);
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+  box-shadow: 0 8px 22px rgba(2,6,23,0.45);
 }
 
-.contact-card h2 {
-  margin-top: 0;
-  color: #004d99;
-}
+.contact-card h2 { margin-top: 0; color: var(--link); }
 
-.contact-card label {
-  font-weight: 600;
-}
+.contact-card label { font-weight: 600; color: var(--text); }
 
-.contact-card input,
-.contact-card textarea {
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
+.contact-card input, .contact-card textarea { margin: 10px 0; padding: 10px; border-radius: 8px; border: 1px solid var(--card-border); background: rgba(255,255,255,0.02); color: var(--text); }
 
-.contact-card button {
-  background: #004d99;
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.contact-card button:hover {
-  background: #0a66c2;
-}
+.contact-card button { padding: 10px 16px; border-radius: 8px; cursor: pointer; }
+.contact-card button.btn-primary { background: var(--accent-gradient); color: var(--text); }
+.contact-card button.btn-primary:hover { box-shadow: 0 0 18px rgba(106,17,203,0.22); }
 

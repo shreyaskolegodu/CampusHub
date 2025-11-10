@@ -1,12 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --accent-1: #6a11cb; /* indigo */
+  /* Dark, vibrant theme (global variables) */
+  --bg-1: #0d1117; /* deep navy */
+  --bg-2: #0f1724; /* slightly lighter */
+
+  --accent-1: #6a11cb; /* purple */
   --accent-2: #2575fc; /* blue */
-  --muted: #f4f7f6;
-  --card: rgba(255,255,255,0.85);
-  --glass: rgba(255,255,255,0.12);
-  --shadow: 0 8px 30px rgba(20,25,40,0.08);
+  --accent-gradient: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+
+  --text: #f0f6fc; /* primary text */
+  --link: #58a6ff; /* link / accent */
+  --muted: #c9d1d9; /* secondary text */
+
+  --card: #0f1419; /* default card background */
+  --card-contrast: #1c1f26; /* Submit a Resource card */
+  --card-border: rgba(255,255,255,0.04);
+  --glass: rgba(255,255,255,0.02);
+  --shadow: 0 8px 30px rgba(2,6,23,0.6);
 }
 
 * { box-sizing: border-box; }
@@ -16,9 +27,9 @@ body {
   font-family: 'Poppins', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
+  background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
   min-height: 100vh;
-  color: #0f172a;
+  color: var(--text);
 }
 
 main, .page-container { padding: 24px; }
@@ -30,6 +41,8 @@ main, .page-container { padding: 24px; }
   border-radius: 12px;
   padding: 20px;
   box-shadow: var(--shadow);
+  border: 1px solid var(--card-border);
+  color: var(--muted);
 }
 
 button {
@@ -43,15 +56,13 @@ code {
 }
 
 /* Consistent form spacing and input appearance across the app */
-form {
-  display: block;
-}
+form { display: block; }
 
 form label {
   display: block;
   margin: 12px 0 6px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text);
 }
 
 form input,
@@ -60,10 +71,11 @@ form select {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid #d1d5db; /* neutral gray */
+  border: 1px solid var(--card-border);
+  background: rgba(255,255,255,0.02);
   margin: 0 0 16px 0;
   font: inherit;
-  color: inherit;
+  color: var(--text);
 }
 
 /* Smaller vertical spacing for compact forms (use .compact-form on form) */
@@ -71,13 +83,13 @@ form select {
 .compact-form input, .compact-form textarea { margin-bottom: 10px; padding: 8px; }
 
 /* Modal/common button styles */
-.btn {
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: none;
-  font: inherit;
-}
-.btn-primary { background: #004d99; color: #fff; }
-.btn-muted { background: #e5e7eb; color: #0f172a; }
+.btn { padding: 8px 12px; border-radius: 8px; cursor: pointer; border: none; font: inherit; }
+.btn-primary { background: var(--accent-gradient); color: var(--text); font-weight: 700; transition: box-shadow 150ms ease, transform 120ms ease; }
+.btn-primary:hover { box-shadow: 0 0 18px rgba(106,17,203,0.28); transform: translateY(-1px); }
+.btn-muted { background: rgba(255,255,255,0.03); color: var(--muted); }
+
+/* small utilities */
+.muted { color: var(--muted); }
+.link { color: var(--link); }
+
 

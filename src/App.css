@@ -1,10 +1,7 @@
 h1 {
-  color: #004d99;
+  color: var(--link);
   text-align: center;
   margin-top: 50px;
 }
 
-p {
-  text-align: center;
-  color: #555;
-}
+p { text-align: center; color: var(--muted); }

@@ -1,9 +1,10 @@
 .forum-container { padding: 40px 24px; }
-.forum-composer { max-width: 640px; margin: 0 auto 24px; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px; box-shadow:0 6px 16px rgba(0,0,0,0.06); }
+.forum-composer { max-width: 640px; margin: 0 auto 24px; background: var(--card); border:1px solid var(--card-border); border-radius:12px; padding:16px; box-shadow:0 8px 22px rgba(2,6,23,0.45); }
 .forum-list { max-width: 720px; margin: 0 auto; display: grid; gap: 12px; }
-.forum-post { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px; box-shadow:0 6px 16px rgba(0,0,0,0.06); }
-.forum-post h3 { margin: 0 0 6px; color:#004d99; }
-.forum-composer input, .forum-composer textarea { width:100%; margin:8px 0; padding:10px; border-radius:8px; border:1px solid #ccc; }
-.forum-composer button { background:#004d99; color:#fff; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; }
-.forum-composer button:hover { background:#0a66c2; }
+.forum-post { background: var(--card); border:1px solid var(--card-border); border-radius:12px; padding:16px; box-shadow:0 8px 22px rgba(2,6,23,0.45); }
+.forum-post h3 { margin: 0 0 6px; color: var(--link); }
+.forum-composer input, .forum-composer textarea { width:100%; margin:8px 0; padding:10px; border-radius:8px; border:1px solid var(--card-border); background: rgba(255,255,255,0.02); color: var(--text); }
+.forum-composer button { padding:10px 16px; border-radius:8px; cursor:pointer; }
+.forum-composer button.btn-primary { background: var(--accent-gradient); color: var(--text); }
+.forum-composer button.btn-primary:hover { box-shadow: 0 0 18px rgba(106,17,203,0.22); }
 

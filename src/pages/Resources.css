@@ -10,20 +10,18 @@
 }
 
 .resource-card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: var(--card);
+  border: 1px solid var(--card-border);
   border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+  box-shadow: 0 8px 22px rgba(2,6,23,0.45);
 }
 
 .resource-card a {
-  color: #004d99;
+  color: var(--link);
   text-decoration: none;
   font-weight: 600;
 }
 
-.resource-card a:hover {
-  text-decoration: underline;
-}
+.resource-card a:hover { text-decoration: underline; }
 

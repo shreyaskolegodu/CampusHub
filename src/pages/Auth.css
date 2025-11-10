@@ -17,87 +17,40 @@
 .auth-hero h1 {
   font-size: 2.25rem;
   margin-bottom: 12px;
-  color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+  color: var(--text);
 }
 
-.auth-hero h1 span {
-  color: #e6f0ff; /* lighter accent for readability */
-}
+.auth-hero h1 span { color: var(--link); }
 
-.auth-hero p {
-  color: rgba(255,255,255,0.92);
-  max-width: 600px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.25);
-}
+.auth-hero p { color: var(--muted); max-width: 600px; }
 
 .auth-container {
   max-width: 420px;
   margin: 0 auto;
   padding: 36px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--card-border);
   border-radius: 14px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  background-color: #ffffff;
+  box-shadow: 0 6px 26px rgba(2,6,23,0.5);
+  background-color: var(--card);
 }
 
-.auth-container h2 {
-  margin-bottom: 20px;
-  color: #004d99;
-}
+.auth-container h2 { margin-bottom: 20px; color: var(--link); }
 
-.auth-container form {
-  display: flex;
-  flex-direction: column;
-}
+.auth-container form { display: flex; flex-direction: column; }
 
-.auth-container label {
-  text-align: left;
-  font-weight: 600;
-  color: #0f172a;
-}
+.auth-container label { text-align: left; font-weight: 600; color: var(--text); }
 
-.auth-container input {
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
+.auth-container input { margin: 10px 0; padding: 10px; border-radius: 8px; border: 1px solid var(--card-border); background: rgba(255,255,255,0.02); color: var(--text); }
 
-.auth-container button {
-  background-color: #004d99;
-  color: white;
-  border: none;
-  padding: 12px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-}
+.auth-container button { padding: 12px 14px; border-radius: 8px; cursor: pointer; font-size: 1rem; }
+.auth-container button.btn-primary { padding: 12px 14px; }
 
-.auth-container button:hover {
-  background-color: #0066cc;
-}
+.auth-container p { margin-top: 15px; }
 
-.auth-container p {
-  margin-top: 15px;
-}
-
-.auth-container a {
-  color: #004d99;
-  text-decoration: none;
-}
-
-.auth-container a:hover {
-  text-decoration: underline;
-}
+.auth-container a { color: var(--link); text-decoration: none; }
+.auth-container a:hover { text-decoration: underline; }
 
 @media (max-width: 900px) {
-  .auth-layout {
-    grid-template-columns: 1fr;
-    padding: 32px 16px;
-  }
-  .auth-hero {
-    text-align: center;
-    padding-bottom: 8px;
-  }
+  .auth-layout { grid-template-columns: 1fr; padding: 32px 16px; }
+  .auth-hero { text-align: center; padding-bottom: 8px; }
 }
