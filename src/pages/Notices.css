@@ -1,12 +1,14 @@
 .notices-container {
   text-align: center;
   padding: 40px 20px;
-  background-color: #f7faff;
+  /* Use the same gradient background as the rest of the app (defined on body) */
+  background: transparent;
   min-height: 100vh;
 }
 
 .notices-container h2 {
-  color: #004d99;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
   margin-bottom: 30px;
 }
 
@@ -61,17 +63,39 @@
   background: #fff;
   border-radius: 12px;
   padding: 20px;
-  min-width: 320px;
+  min-width: 360px;
   max-width: 90%;
   box-shadow: 0 8px 30px rgba(0,0,0,0.12);
 }
 
-.modal-title { margin-top: 0; }
+.modal-title { margin-top: 0; margin-bottom: 8px; }
+
+/* Form field layout inside modal: consistent spacing and full-width inputs */
+.modal label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.modal input,
+.modal textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-sizing: border-box;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+.modal textarea { min-height: 110px; }
 
 .modal .modal-actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   justify-content: flex-end;
-  margin-top: 8px;
+  margin-top: 16px;
 }
 

@@ -1,33 +1,40 @@
 .auth-layout {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 40px;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
   align-items: center;
-  padding: 60px 24px;
+  padding: 48px 24px;
+  min-height: calc(100vh - 40px);
 }
 
 .auth-hero {
   padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .auth-hero h1 {
   font-size: 2.25rem;
   margin-bottom: 12px;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
 }
 
 .auth-hero h1 span {
-  color: #004d99;
+  color: #e6f0ff; /* lighter accent for readability */
 }
 
 .auth-hero p {
-  color: #334155;
+  color: rgba(255,255,255,0.92);
   max-width: 600px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.25);
 }
 
 .auth-container {
   max-width: 420px;
   margin: 0 auto;
-  padding: 30px;
+  padding: 36px;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
@@ -61,7 +68,7 @@
   background-color: #004d99;
   color: white;
   border: none;
-  padding: 10px;
+  padding: 12px 14px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 1rem;
@@ -91,5 +98,6 @@
   }
   .auth-hero {
     text-align: center;
+    padding-bottom: 8px;
   }
 }

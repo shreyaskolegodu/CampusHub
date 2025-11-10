@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -14,10 +14,13 @@ const ProfileAbout = lazy(() => import("./pages/ProfileAbout"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+  const hideNav = ['/login', '/register'].includes(location.pathname);
+
   return (
-    <Router>
-      <Navbar />
+    <>
+      {!hideNav && <Navbar />}
       <Suspense fallback={<div style={{ padding: 16 }}>Loading…</div>}>
         <Routes>
           <Route
@@ -88,6 +91,14 @@ function App() {
           <Route path="/register" element={<Register />} />
         </Routes>
       </Suspense>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }
