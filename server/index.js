@@ -15,37 +15,21 @@ const multer = require('multer');
 
 const upload = multer({ dest: 'uploads/' });
 
-// Input sanitization helper
-function sanitizeInput(input) {
-  if (typeof input !== 'string') return input;
-  return input.trim();
-}
-
 const app = express();
 const PORT = process.env.PORT || 4000;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:3000';
 const allowedOrigins = new Set([
   CLIENT_ORIGIN,
-  'http://localhost:3001',
-  'http://127.0.0.1:3001',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
 ]);
 
-// CORS configuration: allow the configured CLIENT_ORIGIN and common localhost dev origins,
-// and also accept any localhost/127.0.0.1 origin (useful when the dev server runs on different ports).
 const corsOptions = {
   credentials: true,
   origin(origin, callback) {
-    // Allow non-browser requests with no Origin header (curl, server-to-server)
+    // Allow same-origin/non-browser (no Origin header)
     if (!origin) return callback(null, true);
     if (allowedOrigins.has(origin)) return callback(null, true);
-    try {
-      const u = new URL(origin);
-      if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') return callback(null, true);
-    } catch (e) {
-      // If origin isn't a valid URL, reject
-    }
     return callback(new Error('Not allowed by CORS'));
   },
 };
@@ -74,17 +58,12 @@ mongoose
   });
 
 async function requireAuth(req, res, next) {
-  try {
-    const sid = req.cookies.sid;
-    if (!sid) return res.status(401).json({ message: 'Unauthorized' });
-    const user = await User.findOne({ sid });
-    if (!user) return res.status(401).json({ message: 'Unauthorized' });
-    req.user = user;
-    next();
-  } catch (e) {
-    console.error('Auth error:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
+  const sid = req.cookies.sid;
+  if (!sid) return res.status(401).json({ message: 'Unauthorized' });
+  const user = await User.findOne({ sid });
+  if (!user) return res.status(401).json({ message: 'Unauthorized' });
+  req.user = user;
+  next();
 }
 
 // Auth endpoints
@@ -92,23 +71,14 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password } = req.body || {};
     if (!name || !email || !password) return res.status(400).json({ message: 'Missing fields' });
-    
-    const sanitizedEmail = sanitizeInput(email).toLowerCase();
-    const sanitizedName = sanitizeInput(name);
-    
-    if (!sanitizedEmail || !sanitizedName || !password) {
-      return res.status(400).json({ message: 'Invalid input' });
-    }
-    
-    const exists = await User.findOne({ email: sanitizedEmail });
+    const exists = await User.findOne({ email });
     if (exists) return res.status(409).json({ message: 'User already exists' });
     const passwordHash = await bcrypt.hash(password, 10);
     const sid = `sid_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-    const user = await User.create({ name: sanitizedName, email: sanitizedEmail, passwordHash, sid });
+    const user = await User.create({ name, email, passwordHash, sid });
     res.cookie('sid', sid, { httpOnly: true, sameSite: 'lax' });
     res.json({ id: user._id, name: user.name, email: user.email });
   } catch (e) {
-    console.error('Register error:', e);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -116,14 +86,7 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body || {};
-    if (!email || !password) return res.status(400).json({ message: 'Missing fields' });
-    
-    const sanitizedEmail = sanitizeInput(email).toLowerCase();
-    if (!sanitizedEmail || !password) {
-      return res.status(400).json({ message: 'Invalid input' });
-    }
-    
-    const user = await User.findOne({ email: sanitizedEmail });
+    const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ message: 'Invalid credentials' });
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
@@ -133,7 +96,6 @@ app.post('/api/auth/login', async (req, res) => {
     res.cookie('sid', sid, { httpOnly: true, sameSite: 'lax' });
     res.json({ id: user._id, name: user.name, email: user.email });
   } catch (e) {
-    console.error('Login error:', e);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -155,233 +117,110 @@ app.post('/api/auth/logout', async (req, res) => {
   }
 });
 
-// Notices
-app.get('/api/notices', async (req, res) => {
+// Current user (profile) endpoints
+app.get('/api/me', requireAuth, async (req, res) => {
+  const u = req.user;
+  res.json({ id: u._id, name: u.name, email: u.email, username: u.username, srn: u.srn, semester: u.semester, avatarUrl: u.avatarUrl });
+});
+
+app.post('/api/me', requireAuth, async (req, res) => {
   try {
-    const items = await Notice.find().sort({ createdAt: -1 }).lean();
-    res.json(items.map(n => ({ id: n._id, title: n.title, date: n.date, description: n.description })));
+    const { name, username, srn, semester, avatarUrl } = req.body || {};
+    const u = req.user;
+    if (typeof name !== 'undefined') u.name = name;
+    if (typeof username !== 'undefined') u.username = username;
+    if (typeof srn !== 'undefined') u.srn = srn;
+    if (typeof semester !== 'undefined') u.semester = semester;
+    if (typeof avatarUrl !== 'undefined') u.avatarUrl = avatarUrl;
+    await u.save();
+    res.json({ id: u._id, name: u.name, email: u.email, username: u.username, srn: u.srn, semester: u.semester, avatarUrl: u.avatarUrl });
   } catch (e) {
-    console.error('Error fetching notices:', e);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error saving /api/me', e);
+    res.status(500).json({ message: 'Could not save profile' });
   }
 });
 
+// Notices
+app.get('/api/notices', async (req, res) => {
+  const items = await Notice.find().sort({ createdAt: -1 }).lean();
+  res.json(items.map(n => ({ id: n._id, title: n.title, date: n.date, description: n.description })));
+});
+
 app.post('/api/notices', requireAuth, async (req, res) => {
-  try {
-    const { title, date, description } = req.body || {};
-    if (!title || !description) return res.status(400).json({ message: 'Missing fields' });
-    
-    const sanitizedTitle = sanitizeInput(title);
-    const sanitizedDescription = sanitizeInput(description);
-    
-    if (!sanitizedTitle || !sanitizedDescription) {
-      return res.status(400).json({ message: 'Invalid input' });
-    }
-    
-    const doc = await Notice.create({ 
-      title: sanitizedTitle, 
-      date: date || new Date().toDateString(), 
-      description: sanitizedDescription, 
-      authorId: req.user._id 
-    });
-    res.status(201).json({ id: doc._id, title: doc.title, date: doc.date, description: doc.description });
-  } catch (e) {
-    console.error('Error creating notice:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
+  const { title, date, description } = req.body || {};
+  if (!title || !description) return res.status(400).json({ message: 'Missing fields' });
+  const doc = await Notice.create({ title, date: date || new Date().toDateString(), description, authorId: req.user._id });
+  res.status(201).json({ id: doc._id, title: doc.title, date: doc.date, description: doc.description });
 });
 
 // Resources
 app.get('/api/resources', async (req, res) => {
-  try {
-    const items = await Resource.find().sort({ createdAt: -1 }).lean();
-    res.json(items.map(r => ({ id: r._id, title: r.title, url: r.url })));
-  } catch (e) {
-    console.error('Error fetching resources:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
+  const items = await Resource.find().sort({ createdAt: -1 }).lean();
+  res.json(items.map(r => ({ id: r._id, title: r.title, url: r.url })));
 });
 
 app.post('/api/resources', requireAuth, async (req, res) => {
-  try {
-    const { title, url } = req.body || {};
-    if (!title || !url) return res.status(400).json({ message: 'Missing fields' });
-    
-    const sanitizedTitle = sanitizeInput(title);
-    const sanitizedUrl = sanitizeInput(url);
-    
-    if (!sanitizedTitle || !sanitizedUrl) {
-      return res.status(400).json({ message: 'Invalid input' });
-    }
-    
-    const doc = await Resource.create({ title: sanitizedTitle, url: sanitizedUrl, authorId: req.user._id });
-    res.status(201).json({ id: doc._id, title: doc.title, url: doc.url });
-  } catch (e) {
-    console.error('Error creating resource:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
+  const { title, url } = req.body || {};
+  if (!title || !url) return res.status(400).json({ message: 'Missing fields' });
+  const doc = await Resource.create({ title, url, authorId: req.user._id });
+  res.status(201).json({ id: doc._id, title: doc.title, url: doc.url });
 });
 
 // Forum posts
 app.get('/api/forum', async (req, res) => {
-  try {
-    const items = await Post.find().sort({ createdAt: -1 }).lean();
-    res.json(items.map(p => ({ id: p._id, title: p.title, body: p.body, author: p.authorName, createdAt: p.createdAt })));
-  } catch (e) {
-    console.error('Error fetching forum posts:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
+  const items = await Post.find().sort({ createdAt: -1 }).lean();
+  res.json(items.map(p => ({ id: p._id, title: p.title, body: p.body, author: p.authorName, createdAt: p.createdAt })));
 });
 
 app.post('/api/forum', requireAuth, async (req, res) => {
-  try {
-    const { title, body } = req.body || {};
-    if (!title || !body) return res.status(400).json({ message: 'Missing fields' });
-    
-    const sanitizedTitle = sanitizeInput(title);
-    const sanitizedBody = sanitizeInput(body);
-    
-    if (!sanitizedTitle || !sanitizedBody) {
-      return res.status(400).json({ message: 'Invalid input' });
-    }
-    
-    const doc = await Post.create({ 
-      title: sanitizedTitle, 
-      body: sanitizedBody, 
-      authorId: req.user._id, 
-      authorName: req.user.name 
-    });
-    res.status(201).json({ id: doc._id, title: doc.title, body: doc.body, author: doc.authorName, createdAt: doc.createdAt });
-  } catch (e) {
-    console.error('Error creating forum post:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
+  const { title, body } = req.body || {};
+  if (!title || !body) return res.status(400).json({ message: 'Missing fields' });
+  const doc = await Post.create({ title, body, authorId: req.user._id, authorName: req.user.name });
+  res.status(201).json({ id: doc._id, title: doc.title, body: doc.body, author: doc.authorName, createdAt: doc.createdAt });
+});
+
+// Contact endpoint (simple collector)
+app.post('/api/contact', async (req, res) => {
+  const { name, email, message } = req.body || {};
+  if (!name || !email || !message) return res.status(400).json({ message: 'Missing fields' });
+  // For now we just log; swap for email or DB collection as needed
+  console.log('Contact message:', { name, email, message });
+  res.json({ ok: true });
 });
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-// Profile endpoints
-app.get('/api/me', requireAuth, async (req, res) => {
-  try {
-    const u = await User.findById(req.user._id).lean();
-    if (!u) return res.status(404).json({ message: 'User not found' });
-    const { _id, name, email, bio, semester, srn, avatarUrl, createdAt, updatedAt } = u;
-    res.json({ id: _id, name, email, bio, semester, srn, avatarUrl, createdAt, updatedAt });
-  } catch (e) {
-    console.error('Error fetching profile:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-app.post('/api/me', requireAuth, async (req, res) => {
-  try {
-    const { name, bio, semester, srn, avatarUrl } = req.body || {};
-    const updates = {};
-    if (typeof name === 'string') updates.name = sanitizeInput(name);
-    if (typeof bio === 'string') updates.bio = sanitizeInput(bio);
-    if (typeof semester === 'string') updates.semester = sanitizeInput(semester);
-    if (typeof srn === 'string') updates.srn = sanitizeInput(srn);
-    if (typeof avatarUrl === 'string') updates.avatarUrl = sanitizeInput(avatarUrl);
-    const u = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).lean();
-    const { _id, name: n, email, bio: b, semester: s, srn: r, avatarUrl: a, createdAt, updatedAt } = u;
-    res.json({ id: _id, name: n, email, bio: b, semester: s, srn: r, avatarUrl: a, createdAt, updatedAt });
-  } catch (e) {
-    console.error('Error updating profile:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
 app.get('/api/forum/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid post ID' });
-    }
-    const post = await Post.findById(id).lean();
-    if (!post) return res.status(404).json({ message: 'Post not found' });
-    res.json({ id: post._id, title: post.title, body: post.body, author: post.authorName, createdAt: post.createdAt });
-  } catch (e) {
-    console.error('Error fetching post:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
+  const post = await Post.findById(req.params.id).lean();
+  if (!post) return res.status(404).json({ message: 'Post not found' });
+  res.json({ id: post._id, title: post.title, body: post.body, author: post.authorName, createdAt: post.createdAt });
 });
 
 // Comments
 app.get('/api/forum/:id/comments', async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid post ID' });
-    }
-    const items = await Comment.find({ postId: id }).sort({ createdAt: -1 }).lean();
-    res.json(items.map(c => ({ id: c._id, body: c.body, author: c.authorName, createdAt: c.createdAt })));
-  } catch (e) {
-    console.error('Error fetching comments:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
+  const items = await Comment.find({ postId: req.params.id }).sort({ createdAt: -1 }).lean();
+  res.json(items.map(c => ({ id: c._id, body: c.body, author: c.authorName, createdAt: c.createdAt })));
 });
 
 app.post('/api/forum/:id/comments', requireAuth, async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid post ID' });
-    }
-    const { body } = req.body || {};
-    if (!body) return res.status(400).json({ message: 'Missing fields' });
-    
-    const sanitizedBody = sanitizeInput(body);
-    if (!sanitizedBody) {
-      return res.status(400).json({ message: 'Invalid input' });
-    }
-    
-    const doc = await Comment.create({ 
-      postId: id, 
-      body: sanitizedBody, 
-      authorId: req.user._id, 
-      authorName: req.user.name 
-    });
-    res.status(201).json({ id: doc._id, body: doc.body, author: doc.authorName, createdAt: doc.createdAt });
-  } catch (e) {
-    console.error('Error creating comment:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
+  const { body } = req.body || {};
+  if (!body) return res.status(400).json({ message: 'Missing fields' });
+  const doc = await Comment.create({ postId: req.params.id, body, authorId: req.user._id, authorName: req.user.name });
+  res.status(201).json({ id: doc._id, body: doc.body, author: doc.authorName, createdAt: doc.createdAt });
 });
 
 // File upload
 app.post('/api/upload', requireAuth, upload.single('file'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
-    res.json({ path: req.file.path });
-  } catch (e) {
-    console.error('Error uploading file:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
+  res.json({ path: req.file.path });
 });
 
 // Contact form
 app.post('/api/contact', async (req, res) => {
-  try {
-    const { name, email, message } = req.body || {};
-    if (!name || !email || !message) return res.status(400).json({ message: 'Missing fields' });
-    
-    const sanitizedName = sanitizeInput(name);
-    const sanitizedEmail = sanitizeInput(email).toLowerCase();
-    const sanitizedMessage = sanitizeInput(message);
-    
-    if (!sanitizedName || !sanitizedEmail || !sanitizedMessage) {
-      return res.status(400).json({ message: 'Invalid input' });
-    }
-    
-    await Contact.create({ name: sanitizedName, email: sanitizedEmail, message: sanitizedMessage });
-    res.status(201).json({ message: 'Message received!' });
-  } catch (e) {
-    console.error('Error saving contact message:', e);
-    res.status(500).json({ message: 'Server error' });
-  }
+  const { name, email, message } = req.body || {};
+  if (!name || !email || !message) return res.status(400).json({ message: 'Missing fields' });
+  await Contact.create({ name, email, message });
+  res.status(201).json({ message: 'Message received!' });
 });
 
 app.listen(PORT, () => {

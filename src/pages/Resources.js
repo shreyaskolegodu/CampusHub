@@ -8,26 +8,19 @@ function Resources() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    let mounted = true;
     const fetchResources = async () => {
       try {
         const data = await api.get('/api/resources');
-        if (mounted) {
-          setResources(Array.isArray(data) ? data : []);
-        }
+        setResources(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching resources:', error);
-        if (mounted) {
-          setResources([]);
-        }
       }
     };
     fetchResources();
-    return () => { mounted = false; };
   }, []);
 
   const filteredResources = resources.filter(resource =>
-    resource?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    resource.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

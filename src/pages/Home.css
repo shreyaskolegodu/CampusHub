@@ -127,3 +127,22 @@ footer {
   padding: 20px 0;
   font-size: 1rem;
 }
+
+/* Profile specific improvements to make the card visible on main page */
+.profile-card {
+  background: linear-gradient(180deg, #ffffff, #f3f8ff);
+  border: 1px solid rgba(0,77,153,0.08);
+  padding: 28px;
+  max-width: 720px;
+  margin: 0 auto;
+  box-shadow: 0 14px 40px rgba(3, 40, 86, 0.12);
+}
+
+.profile-card h2 { color: #00376b; margin-bottom: 12px; }
+
+.profile-actions { display: flex; gap: 12px; margin-top: 16px; justify-content: flex-end; }
+
+/* Make card content more legible */
+.profile-card label { color: #0f172a; font-weight: 600; }
+.profile-card input, .profile-card textarea { background: #fff; }
+

@@ -11,15 +11,17 @@ function Contact() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      await api.post('/api/contact', form);
-      addToast({ type: 'success', message: 'Message sent!' });
-      setForm({ name: '', email: '', message: '' });
-    } catch (err) {
-      addToast({ type: 'error', message: err?.message || 'Send failed' });
-    }
+    (async () => {
+      try {
+        await api.post('/api/contact', form);
+        addToast({ type: 'success', message: 'Message sent!' });
+        setForm({ name: '', email: '', message: '' });
+      } catch (err) {
+        addToast({ type: 'error', message: err?.message || 'Send failed' });
+      }
+    })();
   };
 
   return (

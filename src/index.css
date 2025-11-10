@@ -41,3 +41,43 @@ button {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+/* Consistent form spacing and input appearance across the app */
+form {
+  display: block;
+}
+
+form label {
+  display: block;
+  margin: 12px 0 6px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+form input,
+form textarea,
+form select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db; /* neutral gray */
+  margin: 0 0 16px 0;
+  font: inherit;
+  color: inherit;
+}
+
+/* Smaller vertical spacing for compact forms (use .compact-form on form) */
+.compact-form label { margin: 8px 0 4px; }
+.compact-form input, .compact-form textarea { margin-bottom: 10px; padding: 8px; }
+
+/* Modal/common button styles */
+.btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  font: inherit;
+}
+.btn-primary { background: #004d99; color: #fff; }
+.btn-muted { background: #e5e7eb; color: #0f172a; }
+

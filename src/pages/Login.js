@@ -12,16 +12,18 @@ function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const data = await api.post('/api/auth/login', { email, password });
-      login(data);
-      addToast({ type: 'success', message: 'Logged in successfully' });
-      navigate('/');
-    } catch (err) {
-      addToast({ type: 'error', message: err?.message || 'Login failed' });
-    }
+    (async () => {
+      try {
+        const data = await api.post('/api/auth/login', { email, password });
+        login(data);
+        addToast({ type: 'success', message: 'Logged in successfully' });
+        navigate('/');
+      } catch (err) {
+        addToast({ type: 'error', message: err?.message || 'Login failed' });
+      }
+    })();
   };
 
   return (

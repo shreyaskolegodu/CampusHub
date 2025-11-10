@@ -2,22 +2,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 28px;
-  color: #fff;
-  background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-  backdrop-filter: blur(6px);
-  border-radius: 12px;
-  margin: 16px;
-  box-shadow: 0 6px 18px rgba(2,6,23,0.18);
+  background-color: #ffffff;
+  padding: 15px 40px;
+  color: #333;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  color: #0056b3;
 }
 
 .nav-links {
@@ -27,34 +21,67 @@
 }
 
 .nav-links a {
-  color: #e6eefc;
+  color: #333;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
   padding: 8px 12px;
-  border-radius: 8px;
-  transition: transform 0.18s ease, background-color 0.18s ease;
+  border-radius: 6px;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .nav-links a:hover {
-  transform: translateY(-3px);
-  background: rgba(255,255,255,0.04);
+  background-color: #f0f0f0;
 }
 
 /* Active route */
 .nav-links a.active {
-  background: linear-gradient(90deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
-  color: #fff;
+  background-color: #0056b3;
+  color: white;
 }
+
+/* user button (shows current user's name) */
+.user-button {
+  background: transparent;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+.user-button:hover { background-color: #f0f0f0; }
 
 /* Mobile */
 .menu-toggle {
   display: none;
   background: transparent;
   border: none;
-  color: #fff;
+  color: #333;
   font-size: 1.8rem;
   cursor: pointer;
 }
+
+/* User dropdown (top-right) */
+.user-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: #fff;
+  color: #111;
+  border-radius: 8px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.16);
+  padding: 12px;
+  min-width: 220px;
+  z-index: 200;
+}
+.user-row { display:flex; gap:12px; align-items:center; padding-bottom:8px; border-bottom:1px solid #eef2f7; }
+.user-avatar img { width:48px; height:48px; object-fit:cover; border-radius:8px; }
+.user-initial { width:48px; height:48px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#e6eefc,#ffffff); color:#00376b; font-weight:700; font-size:18px; }
+.user-meta .user-name { font-weight:700; color:#02345a; }
+.user-meta .user-email { font-size:0.9rem; color:#64748b; }
+.user-actions { display:flex; flex-direction:column; margin-top:8px; gap:6px; }
+.user-action { background:transparent; border:none; text-align:left; padding:8px 6px; cursor:pointer; color:#0f172a; border-radius:6px; text-decoration:none; }
+.user-action:hover { background:#f5f7fb; }
 
 @media (max-width: 768px) {
   .menu-toggle {
@@ -64,13 +91,13 @@
   .nav-links {
     position: absolute;
     top: 70px;
-    right: 16px;
-    background: rgba(255,255,255,0.06);
+    right: 0;
+    background-color: #ffffff;
     flex-direction: column;
     gap: 15px;
-    padding: 18px 20px;
-    box-shadow: 0 8px 30px rgba(2,6,23,0.18);
-    border-radius: 10px;
+    padding: 20px 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 8px 8px;
     display: none;
   }
 

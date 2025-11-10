@@ -2,6 +2,8 @@ const DEFAULT_HEADERS = { 'Content-Type': 'application/json' };
 
 const getBaseUrl = () => {
   if (process.env.REACT_APP_API_BASE_URL) return process.env.REACT_APP_API_BASE_URL;
+  // In development, default to local backend to avoid CRA proxy issues and "Cannot POST /api/*" HTML responses
+  if (process.env.NODE_ENV === 'development') return 'http://localhost:4000';
   return '';
 };
 

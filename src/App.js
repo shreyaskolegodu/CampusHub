@@ -1,9 +1,7 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-  import { useAuth } from './context/AuthContext';
-  import Profile from './pages/Profile';
 
 const Home = lazy(() => import("./pages/Home"));
 const Notices = lazy(() => import("./pages/Notices"));
@@ -12,14 +10,10 @@ const Post = lazy(() => import("./pages/Post"));
 const Resources = lazy(() => import("./pages/Resources"));
 const Upload = lazy(() => import("./pages/Upload"));
 const Contact = lazy(() => import("./pages/Contact"));
+const ProfileAbout = lazy(() => import("./pages/ProfileAbout"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 
-  function LandingWrapper({ children }) {
-    const { user } = useAuth();
-    if (!user) return <Navigate to="/login" replace />;
-    return children;
-  }
 function App() {
   return (
     <Router>
@@ -28,7 +22,11 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<LandingWrapper><Home /></LandingWrapper>}
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/notices"
@@ -78,9 +76,16 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/profile/about"
+            element={
+              <ProtectedRoute>
+                <ProfileAbout />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         </Routes>
       </Suspense>
     </Router>

@@ -8,16 +8,18 @@ function Upload() {
   const [url, setUrl] = useState('');
   const { addToast } = useToasts();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      await api.post('/api/resources', { title, url });
-      addToast({ type: 'success', message: 'Resource submitted' });
-      setTitle('');
-      setUrl('');
-    } catch (err) {
-      addToast({ type: 'error', message: err?.message || 'Submit failed' });
-    }
+    (async () => {
+      try {
+        await api.post('/api/resources', { title, url });
+        addToast({ type: 'success', message: 'Resource submitted' });
+        setTitle('');
+        setUrl('');
+      } catch (err) {
+        addToast({ type: 'error', message: err?.message || 'Submit failed' });
+      }
+    })();
   };
 
   return (

@@ -34,19 +34,28 @@ export default function Profile() {
   if (loading) return <div className="page-container">Loading profile…</div>;
   return (
     <div className="page-container">
-      <div className="card">
+      <div className="card profile-card">
         <h2>Your Profile</h2>
-        <label>Full name</label>
-        <input value={profile?.name||''} onChange={(e)=>handleChange('name', e.target.value)} />
-        <label>SRN</label>
-        <input value={profile?.srn||''} onChange={(e)=>handleChange('srn', e.target.value)} />
-        <label>Semester</label>
-        <input value={profile?.semester||''} onChange={(e)=>handleChange('semester', e.target.value)} />
-        <label>Short bio</label>
-        <textarea value={profile?.bio||''} onChange={(e)=>handleChange('bio', e.target.value)} />
-        <div style={{ display:'flex', gap:8, marginTop:12 }}>
-          <button onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save Profile'}</button>
-        </div>
+        <form className="profile-form" onSubmit={(e)=>{ e.preventDefault(); save(); }}>
+          <label htmlFor="profile-username">Username</label>
+          <input id="profile-username" value={profile?.email || profile?.username || ''} disabled />
+
+          <label htmlFor="profile-name">Full name</label>
+          <input id="profile-name" value={profile?.name||''} onChange={(e)=>handleChange('name', e.target.value)} />
+
+          <label htmlFor="profile-srn">SRN</label>
+          <input id="profile-srn" value={profile?.srn||''} onChange={(e)=>handleChange('srn', e.target.value)} />
+
+          <label htmlFor="profile-semester">Semester</label>
+          <input id="profile-semester" value={profile?.semester||''} onChange={(e)=>handleChange('semester', e.target.value)} />
+
+          <label htmlFor="profile-bio">Short bio</label>
+          <textarea id="profile-bio" value={profile?.bio||''} onChange={(e)=>handleChange('bio', e.target.value)} />
+
+          <div className="profile-actions">
+            <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Save Profile'}</button>
+          </div>
+        </form>
       </div>
     </div>
   );

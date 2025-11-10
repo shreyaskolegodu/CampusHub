@@ -1,0 +1,24 @@
+.profile-about .profile-top {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.avatar-wrap { width: 100px; height: 100px; }
+.avatar-img { width: 100px; height: 100px; object-fit: cover; border-radius: 12px; border: 2px solid rgba(0,77,153,0.12); }
+.avatar-placeholder { width: 100px; height: 100px; display:flex; align-items:center; justify-content:center; border-radius:12px; background:linear-gradient(135deg,#e6eefc,#ffffff); font-size:36px; color:#00376b; font-weight:700; border:1px solid rgba(0,77,153,0.06); }
+
+.profile-info .profile-name { margin:0; color:#02345a; }
+.profile-info .profile-email { margin:4px 0; color:#475569; }
+.profile-info .profile-meta { margin:0; color:#64748b; font-size:0.95rem; }
+
+.upload-section { margin-top: 18px; }
+.upload-section input[type="file"] { margin-top:8px; }
+.upload-actions { display:flex; gap:12px; align-items:center; margin-top:12px; }
+.file-name { color:#334155; font-size:0.95rem; }
+
+/* Ensure labels and inputs inside the profile-about card have consistent spacing */
+.profile-about label { display:block; margin:12px 0 6px; font-weight:600; color:#0f172a; }
+.profile-about input, .profile-about textarea { width:100%; padding:10px; border-radius:8px; border:1px solid #d1d5db; margin:0 0 16px 0; font:inherit; }
+
+.hint { color:#94a3b8; font-size:0.9rem; margin-top:8px; }

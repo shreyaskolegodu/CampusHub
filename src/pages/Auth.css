@@ -1,28 +1,22 @@
 .auth-layout {
   display: grid;
-  grid-template-columns: 1fr 420px;
-  gap: 36px;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 40px;
   align-items: center;
-  padding: 48px 24px;
+  padding: 60px 24px;
 }
 
 .auth-hero {
   padding: 24px;
-  color: #eef6ff;
-  padding-left: 36px;
 }
 
 .auth-hero h1 {
-  font-size: 2.6rem;
-  margin-bottom: 8px;
-  line-height: 1.02;
+  font-size: 2.25rem;
+  margin-bottom: 12px;
 }
 
 .auth-hero h1 span {
-  background: linear-gradient(90deg, #ffd86f, #ff6a88);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #004d99;
 }
 
 .auth-hero p {
@@ -33,16 +27,16 @@
 .auth-container {
   max-width: 420px;
   margin: 0 auto;
-  padding: 28px;
+  padding: 30px;
+  border: 1px solid #e5e7eb;
   border-radius: 14px;
-  box-shadow: 0 12px 40px rgba(2,6,23,0.18);
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(12,18,35,0.06);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  background-color: #ffffff;
 }
 
 .auth-container h2 {
   margin-bottom: 20px;
-  color: #0f172a;
+  color: #004d99;
 }
 
 .auth-container form {
@@ -56,27 +50,25 @@
   color: #0f172a;
 }
 
-.auth-container input, .auth-container textarea {
+.auth-container input {
   margin: 10px 0;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(12,18,35,0.06);
-  background: rgba(250,250,255,0.9);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
 
 .auth-container button {
-  background: linear-gradient(90deg, #ff9a9e, #fad0c4);
-  color: #08203a;
+  background-color: #004d99;
+  color: white;
   border: none;
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 10px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: 700;
 }
 
 .auth-container button:hover {
-  transform: translateY(-3px);
+  background-color: #0066cc;
 }
 
 .auth-container p {
@@ -84,11 +76,13 @@
 }
 
 .auth-container a {
-  color: var(--accent-2);
+  color: #004d99;
   text-decoration: none;
 }
 
-.auth-container a:hover { text-decoration: underline; }
+.auth-container a:hover {
+  text-decoration: underline;
+}
 
 @media (max-width: 900px) {
   .auth-layout {

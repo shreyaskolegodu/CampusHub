@@ -37,6 +37,11 @@ function Home() {
             <h3>⬆️ Upload</h3>
             <p>Contribute your materials to help others in the community.</p>
           </div>
+          <div className="feature-card">
+            <h3>👤 About Me</h3>
+            <p>View and update your profile, upload a profile photo, and manage your public info.</p>
+            <Link to="/profile/about" className="hero-btn" style={{ padding: '8px 14px', marginTop: 12, display: 'inline-block' }}>Open Profile</Link>
+          </div>
         </div>
       </section>
 
