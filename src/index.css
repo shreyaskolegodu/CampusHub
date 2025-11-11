@@ -42,7 +42,37 @@ main, .page-container { padding: 24px; }
   padding: 20px;
   box-shadow: var(--shadow);
   border: 1px solid var(--card-border);
+  /* card body text should use primary text color for good contrast */
+  color: var(--text);
+}
+
+/* Ensure headings are clearly visible in both dark and light themes */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+/* Paragraphs, small text and secondary copy use muted color for hierarchy */
+p, small, .muted, li, .small {
   color: var(--muted);
+}
+
+/* Light theme overrides */
+[data-theme="light"] {
+  --bg-1: #f6f8fa;
+  --bg-2: #ffffff;
+  --accent-1: #6a11cb;
+  --accent-2: #2575fc;
+  --accent-gradient: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  --text: #0b1220;
+  --link: #2563eb;
+  --muted: #3b4a59;
+  --card: #ffffff;
+  --card-contrast: #f8fbff;
+  --card-border: rgba(2,6,23,0.06);
+  --glass: rgba(2,6,23,0.02);
+  --shadow: 0 8px 30px rgba(2,6,23,0.06);
 }
 
 button {

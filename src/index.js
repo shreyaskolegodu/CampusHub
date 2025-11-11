@@ -6,16 +6,19 @@ import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './context/ToastContext';
 import ToastContainer from './components/ToastContainer';
+import { ThemeProvider } from './context/ThemeContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
       <ToastProvider>
-        <AuthProvider>
-          <App />
-          <ToastContainer />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <App />
+            <ToastContainer />
+          </AuthProvider>
+        </ThemeProvider>
       </ToastProvider>
     </ErrorBoundary>
   </React.StrictMode>

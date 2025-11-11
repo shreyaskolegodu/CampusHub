@@ -14,6 +14,7 @@ const Contact = require('./models/Contact');
 const multer = require('multer');
 
 const upload = multer({ dest: 'uploads/' });
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -46,6 +47,9 @@ app.use((req, _res, next) => {
 });
 app.use(express.json());
 app.use(cookieParser());
+
+// Serve uploaded files under /uploads
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // Mongo connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/campushub';
@@ -143,7 +147,25 @@ app.post('/api/me', requireAuth, async (req, res) => {
 // Notices
 app.get('/api/notices', async (req, res) => {
   const items = await Notice.find().sort({ createdAt: -1 }).lean();
-  res.json(items.map(n => ({ id: n._id, title: n.title, date: n.date, description: n.description })));
+  // attempt to identify current user (optional)
+  let currentUser = null;
+  try {
+    const sid = req.cookies && req.cookies.sid;
+    if (sid) currentUser = await User.findOne({ sid }).lean();
+  } catch (e) { /* ignore */ }
+
+  // Map notices and include upvote counts and whether current user upvoted/read
+  const mapped = items.map(n => ({
+    id: n._id,
+    title: n.title,
+    date: n.date,
+    description: n.description,
+    upvoteCount: n.upvoteCount || 0,
+    attachments: n.attachments || [],
+    isUpvoted: currentUser ? ((currentUser.upvotedNotices || []).some(x => String(x) === String(n._id))) : false,
+    isRead: currentUser ? ((currentUser.readNotices || []).some(x => String(x) === String(n._id))) : false,
+  }));
+  res.json(mapped);
 });
 
 app.post('/api/notices', requireAuth, async (req, res) => {
@@ -153,10 +175,63 @@ app.post('/api/notices', requireAuth, async (req, res) => {
   res.status(201).json({ id: doc._id, title: doc.title, date: doc.date, description: doc.description });
 });
 
+// Toggle upvote for a notice by current user
+app.post('/api/notices/:id/upvote', requireAuth, async (req, res) => {
+  try {
+    const noticeId = req.params.id;
+    const user = await User.findById(req.user._id);
+    const notice = await Notice.findById(noticeId);
+    if (!notice) return res.status(404).json({ message: 'Notice not found' });
+
+    const already = (user.upvotedNotices || []).some(x => String(x) === String(noticeId));
+    if (already) {
+      // remove
+      user.upvotedNotices = (user.upvotedNotices || []).filter(x => String(x) !== String(noticeId));
+      notice.upvoteCount = Math.max(0, (notice.upvoteCount || 0) - 1);
+    } else {
+      user.upvotedNotices = [...(user.upvotedNotices || []), notice._id];
+      notice.upvoteCount = (notice.upvoteCount || 0) + 1;
+    }
+    await user.save();
+    await notice.save();
+    res.json({ id: notice._id, upvoteCount: notice.upvoteCount, upvoted: !already });
+  } catch (e) {
+    console.error('Upvote error', e);
+    res.status(500).json({ message: 'Could not toggle upvote' });
+  }
+});
+
+// Mark notice as read for current user
+app.post('/api/notices/:id/read', requireAuth, async (req, res) => {
+  try {
+    const noticeId = req.params.id;
+    const user = await User.findById(req.user._id);
+    const already = (user.readNotices || []).some(x => String(x) === String(noticeId));
+    if (!already) {
+      user.readNotices = [...(user.readNotices || []), noticeId];
+      await user.save();
+    }
+    res.json({ id: noticeId, read: true });
+  } catch (e) {
+    console.error('Mark read error', e);
+    res.status(500).json({ message: 'Could not mark as read' });
+  }
+});
+
 // Resources
 app.get('/api/resources', async (req, res) => {
   const items = await Resource.find().sort({ createdAt: -1 }).lean();
-  res.json(items.map(r => ({ id: r._id, title: r.title, url: r.url })));
+    const results = await Promise.all(items.map(async (r) => {
+      let contributor = null;
+      try {
+        if (r.authorId) {
+          const u = await User.findById(r.authorId).lean();
+          if (u) contributor = u.username || u.email || u.name;
+        }
+      } catch (e) { /* ignore */ }
+      return { id: r._id, title: r.title, url: r.url, contributor };
+    }));
+    res.json(results);
 });
 
 app.post('/api/resources', requireAuth, async (req, res) => {

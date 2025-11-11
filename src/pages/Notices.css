@@ -13,6 +13,10 @@
 
 .notices-actions { margin-bottom: 16px; }
 
+.notices-controls { display:flex; gap:12px; justify-content:center; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+.notices-controls .search { padding:10px 12px; border-radius:8px; border:1px solid var(--card-border); background: rgba(255,255,255,0.02); color:var(--text); min-width:220px; }
+.notices-controls select { padding:10px 12px; border-radius:8px; border:1px solid var(--card-border); background: rgba(255,255,255,0.02); color:var(--text); }
+
 .notices-list {
   display: flex;
   flex-wrap: wrap;
@@ -20,18 +24,20 @@
   gap: 20px;
 }
 
+
 .notice-card {
   background-color: var(--card);
-  width: 300px;
-  padding: 20px;
+  width: 320px;
+  padding: 18px;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(2,6,23,0.45);
   text-align: left;
-  transition: transform 0.2s;
+  transition: transform 0.18s, box-shadow 0.18s;
   border: 1px solid var(--card-border);
+  display:flex; flex-direction:column; gap:10px;
 }
 
-.notice-card:hover { transform: translateY(-5px); }
+.notice-card:hover { transform: translateY(-6px); box-shadow: 0 12px 34px rgba(2,6,23,0.48); }
 
 .notice-card h3 { color: var(--link); margin-bottom: 10px; }
 
@@ -85,4 +91,21 @@
 .modal textarea { min-height: 110px; }
 
 .modal .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px; }
+
+/* floating add notice button */
+.add-notice-btn { position: fixed; right: 20px; bottom: 24px; padding: 12px 16px; border-radius: 999px; background: linear-gradient(135deg,var(--accent-1),var(--accent-2)); color: white; box-shadow: 0 10px 30px rgba(2,6,23,0.4); border:none; cursor:pointer; z-index: 800; }
+
+.notice-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+.notice-snippet { color: var(--muted); }
+.notice-card.read { opacity: 0.7; }
+
+.pagination { display:flex; gap:12px; justify-content:center; align-items:center; margin-top:18px; }
+.page-info { color: var(--muted); }
+
+/* responsive adjustments */
+@media (max-width: 900px) {
+  .feature-grid, .notices-list { grid-template-columns: 1fr; }
+  .notice-card { width: 100%; }
+}
+
 

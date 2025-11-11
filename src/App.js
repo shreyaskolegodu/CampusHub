@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -21,8 +22,10 @@ function AppContent() {
   return (
     <>
       {!hideNav && <Navbar />}
-      <Suspense fallback={<div style={{ padding: 16 }}>Loading…</div>}>
-        <Routes>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div key={location.pathname} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.28 }} style={{ minHeight: '60vh' }}>
+          <Suspense fallback={<div style={{ padding: 16 }}>Loading…</div>}>
+            <Routes location={location}>
           <Route
             path="/"
             element={
@@ -89,8 +92,10 @@ function AppContent() {
           />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-        </Routes>
-      </Suspense>
+            </Routes>
+          </Suspense>
+        </motion.div>
+      </AnimatePresence>
     </>
   );
 }

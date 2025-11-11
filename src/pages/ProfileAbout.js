@@ -1,95 +1,132 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './ProfileAbout.css';
 import { api } from '../lib/api';
 import { useToasts } from '../context/ToastContext';
+import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProfileAbout() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  const [file, setFile] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [avatarDataUrl, setAvatarDataUrl] = useState(null);
+  const fileRef = useRef(null);
   const { addToast } = useToasts();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
-    api.get('/api/me').then((data) => { if (mounted) setProfile(data); }).catch(() => {}).finally(() => { if (mounted) setLoading(false); });
+    // fetch server profile where available, but allow local overrides from localStorage
+    api.get('/api/me').then((data) => { if (mounted) setProfile(data); }).catch(() => {
+      // ignore network errors
+    }).finally(() => { if (mounted) setLoading(false); });
+
+    // hydrate local edits from localStorage (persisted under 'profile_about')
+    try {
+      const local = localStorage.getItem('profile_about');
+      if (local) {
+        const parsed = JSON.parse(local);
+        if (mounted) setProfile((p) => ({ ...(p || {}), ...parsed }));
+      }
+      const av = localStorage.getItem('profile_about_avatar');
+      if (av) setAvatarDataUrl(av);
+    } catch (e) { /* ignore */ }
     return () => { mounted = false; };
   }, []);
 
-  // file upload removed; functions cleaned up to avoid unused warnings
+  const onSelectAvatar = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const d = reader.result;
+      setAvatarDataUrl(d);
+      try { localStorage.setItem('profile_about_avatar', d); } catch (e) { /* ignore */ }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const clearAvatar = () => {
+    setAvatarDataUrl(null);
+    try { localStorage.removeItem('profile_about_avatar'); } catch (e) {}
+    if (fileRef.current) fileRef.current.value = '';
+  };
 
   if (loading) return <div className="page-container">Loading…</div>;
 
+  const avatarInitial = (profile?.name || profile?.email || 'U').charAt(0).toUpperCase();
+
+  const handleSaveLocal = async () => {
+    setSaving(true);
+    try {
+      const toSave = {
+        srn: profile?.srn || '',
+        semester: profile?.semester || '',
+        bio: profile?.bio || '',
+        name: profile?.name || '',
+      };
+      localStorage.setItem('profile_about', JSON.stringify(toSave));
+      addToast({ type: 'success', message: '✅ Info saved successfully!' });
+      setEditing(false);
+    } catch (e) {
+      addToast({ type: 'error', message: 'Could not save info locally' });
+    } finally { setSaving(false); }
+  };
+
   return (
     <div className="page-container">
-      <div className="card profile-card profile-about">
+      <motion.div className="card profile-card profile-about" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.26 }}>
         <h2>About You</h2>
         <div className="profile-top">
+          <div className="avatar-wrap">
+            {avatarDataUrl ? (
+              <img src={avatarDataUrl} alt="avatar" className="avatar-img avatar-hover" />
+            ) : (
+              <div className="avatar-placeholder avatar-hover">{avatarInitial}</div>
+            )}
+            <div className="avatar-controls">
+              <input ref={fileRef} type="file" accept="image/*" id="avatar-file" style={{ display: 'none' }} onChange={(e) => onSelectAvatar(e.target.files?.[0])} />
+              <button className="btn btn-link small" onClick={() => fileRef.current && fileRef.current.click()}>Upload</button>
+              {avatarDataUrl && <button className="btn btn-link small" onClick={clearAvatar}>Remove</button>}
+            </div>
+          </div>
+
           <div className="profile-info">
             <h3 className="profile-name">{profile?.name}</h3>
             <p className="profile-username">Username: {profile?.username || profile?.email}</p>
             <p className="profile-email">{profile?.email}</p>
+            <div className="accent-line" />
             <p className="profile-meta">Semester: {profile?.semester || '—'} | SRN: {profile?.srn || '—'}</p>
           </div>
         </div>
 
-        <hr />
-
-          <div className="info-section">
+        <div className="info-section">
           <label htmlFor="about-srn">SRN</label>
-          <input id="about-srn" value={profile?.srn||''} onChange={(e)=>setProfile(p => ({ ...p, srn: e.target.value }))} />
+          <input id="about-srn" value={profile?.srn||''} onChange={(e)=>setProfile(p => ({ ...p, srn: e.target.value }))} disabled={!editing} />
 
           <label htmlFor="about-semester">Semester</label>
-          <input id="about-semester" value={profile?.semester||''} onChange={(e)=>setProfile(p => ({ ...p, semester: e.target.value }))} />
+          <input id="about-semester" value={profile?.semester||''} onChange={(e)=>setProfile(p => ({ ...p, semester: e.target.value }))} disabled={!editing} />
 
-          <div style={{ display: 'flex', gap: 12, marginTop: 12, justifyContent: 'flex-end' }}>
-            <button className="btn btn-primary" onClick={async () => {
-              const payload = { srn: profile?.srn || '', semester: profile?.semester || '' };
-              const hostsToTry = [];
-              if (process.env.REACT_APP_API_BASE_URL) hostsToTry.push(process.env.REACT_APP_API_BASE_URL);
-              if (typeof window !== 'undefined') {
-                hostsToTry.push(`${window.location.protocol}//${window.location.hostname}:4000`);
-              }
-              hostsToTry.push('http://localhost:4000');
-              hostsToTry.push('http://127.0.0.1:4000');
+          <label htmlFor="about-bio">Short bio</label>
+          <textarea id="about-bio" value={profile?.bio||''} onChange={(e)=>setProfile(p => ({ ...p, bio: e.target.value }))} disabled={!editing} />
 
-              let lastErr = null;
-              setUploading(true);
-              for (const base of hostsToTry) {
-                const url = `${base.replace(/\/$/, '')}/api/me`;
-                console.log('Attempting to save profile to', url);
-                try {
-                  const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                    credentials: 'include',
-                  });
-                  if (!res.ok) {
-                    const text = await res.text().catch(() => null);
-                    const msg = text || res.statusText || `Save failed (${res.status})`;
-                    throw new Error(msg);
-                  }
-                  const updated = await res.json().catch(() => null);
-                  if (updated) setProfile(updated);
-                  addToast({ type: 'success', message: 'Profile info saved' });
-                  lastErr = null;
-                  break;
-                } catch (err) {
-                  console.warn('Save attempt failed for', url, err?.message || err);
-                  lastErr = err;
-                  // try next host
-                }
-              }
-              if (lastErr) {
-                console.error('All save attempts failed', lastErr);
-                addToast({ type: 'error', message: lastErr?.message || 'Save failed (network)' });
-              }
-              setUploading(false);
-            }}>{uploading ? 'Saving…' : 'Save Info'}</button>
+          <div className="stats-row">Posts: <strong>12</strong> &nbsp;|&nbsp; Resources Shared: <strong>4</strong></div>
+
+          <div className="actions-row">
+            <button className="btn save-cta" onClick={handleSaveLocal} disabled={saving || !editing}>{saving ? 'Saving…' : 'Save Info'}</button>
           </div>
         </div>
-      </div>
+
+        <div className="divider" />
+
+        <div className="account-actions">
+          <button className="btn btn-link" onClick={() => setEditing((v)=>!v)}>{editing ? 'Cancel' : 'Edit Info'}</button>
+          <button className="btn btn-ghost" onClick={() => { logout(); navigate('/login'); }}>🚪 Logout</button>
+          <button className="btn btn-link" onClick={() => navigate('/')}>↩️ Back to Home</button>
+        </div>
+      </motion.div>
     </div>
   );
 }

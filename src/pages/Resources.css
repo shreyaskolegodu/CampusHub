@@ -5,7 +5,7 @@
 .resources-grid {
   margin-top: 24px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
@@ -13,8 +13,10 @@
   background: var(--card);
   border: 1px solid var(--card-border);
   border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 8px 22px rgba(2,6,23,0.45);
+  padding: 14px;
+  box-shadow: 0 8px 22px rgba(2,6,23,0.35);
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
 }
 
 .resource-card a {
@@ -24,4 +26,16 @@
 }
 
 .resource-card a:hover { text-decoration: underline; }
+
+.resource-card:hover { transform: translateY(-6px); box-shadow: 0 16px 44px rgba(2,6,23,0.45); }
+
+.resource-left { display:flex; flex-direction:column; gap:6px; }
+.resource-title { font-weight:700; color: var(--link); font-size:1rem; }
+.resource-meta { color: var(--muted); font-size:0.9rem; }
+.resource-filename { color: var(--muted); font-size:0.85rem; }
+.resource-actions .btn { padding:8px 10px; border-radius:8px; }
+
+@media (max-width: 720px) {
+  .resources-grid { grid-template-columns: 1fr; }
+}
 

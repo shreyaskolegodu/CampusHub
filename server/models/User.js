@@ -10,6 +10,9 @@ const UserSchema = new Schema(
     avatarUrl: { type: String },
     passwordHash: { type: String, required: true },
     sid: { type: String, default: null, index: true },
+    // track per-user actions for notices
+    upvotedNotices: [{ type: Schema.Types.ObjectId, ref: 'Notice' }],
+    readNotices: [{ type: Schema.Types.ObjectId, ref: 'Notice' }],
   },
   { timestamps: true }
 );
